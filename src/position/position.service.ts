@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindOneOptions } from 'typeorm';
+// import { Repository, TreeRepository } from 'typeorm';
+// import { Repository as TypeOrmRepository, TreeRepository } from 'typeorm';
 import { Position } from './position.entity';
 
 @Injectable()
@@ -9,6 +11,30 @@ export class PositionService {
     @InjectRepository(Position)
     private positionRepository: Repository<Position>,
   ) {}
+
+  async findAllHierarchy(): Promise<Position[]> {
+    const positions = await this.positionRepository.find({ relations: ['parent', 'children'] });
+    const map = new Map<number, Position>();
+
+    positions.forEach(position => {
+      map.set(position.id, { ...position, children: [] });
+    });
+
+    const roots: Position[] = [];
+
+    map.forEach(position => {
+      if (position.parent) {
+        const parent = map.get(position.parent.id);
+        if (parent) {
+          parent.children.push(position);
+        }
+      } else {
+        roots.push(position);
+      }
+    });
+
+    return roots;
+  }
 
   create(createPositionDto: any): Promise<Position> {
     const position = new Position();
@@ -25,6 +51,7 @@ export class PositionService {
   findOne(id: number): Promise<Position> {
     const options: FindOneOptions<Position> = { where: { id }, relations: ['children', 'parent'] };
     return this.positionRepository.findOne(options);
+    // return this.positionRepository.findOne(id);
   }
 
   async update(id: number, updatePositionDto: any): Promise<Position> {
@@ -38,4 +65,9 @@ export class PositionService {
   async remove(id: number): Promise<void> {
     await this.positionRepository.delete(id);
   }
+
+
+  // async findHierarchy(): Promise<Position[]> {
+  //   return this.treeRepository.findTrees();
+  // }
 }

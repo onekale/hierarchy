@@ -12,10 +12,16 @@ export class PositionController {
     return this.positionService.create(createPositionDto);
   }
 
+  @Get('/hierarchy')
+  findAllHierarchy(): Promise<Position[]> {
+    return this.positionService.findAllHierarchy();
+  }
+
   @Get()
   findAll(): Promise<Position[]> {
     return this.positionService.findAll();
   }
+
 
   @Get(':id')
   findOne(@Param('id') id: number): Promise<Position> {
@@ -31,4 +37,8 @@ export class PositionController {
   remove(@Param('id') id: number): Promise<void> {
     return this.positionService.remove(id);
   }
+
+
+
+
 }
