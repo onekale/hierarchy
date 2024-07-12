@@ -67,7 +67,4 @@ export class PositionService {
   }
 
 
-  // async findHierarchy(): Promise<Position[]> {
-  //   return this.treeRepository.findTrees();
-  // }
 }
